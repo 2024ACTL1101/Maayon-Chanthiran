@@ -159,6 +159,11 @@ ggplot(df, aes(x = GSPC_er, y = AMD_er)) +
 
 ### Step 3: Predictions Interval
 Suppose the current risk-free rate is 5.0%, and the annual expected return for the S&P 500 is 13.3%. Determine a 90% prediction interval for AMD's annual expected return.
+
+
+**Answer:**
+
+```r
 #fill the code
 beta <- summary(model)$coefficients["GSPC_er", "Estimate"]
 current_rfr <- 0.05
@@ -173,11 +178,7 @@ max_bound <- expd_amd_return + z_score * annual_st_error
 print(paste("Expected annual return for AMD:", signif(expd_amd_return, 5))
 print(paste("90% prediction interval for AMD's annual return: [", signif(min_bound, 5), ",", signif(max_bound,
 5), "]"))
-
-
-
-**Answer:**
-
-```r
-#fill the code
 ```
+The expected annual return for AMD was 0.18031, this suggests that AMD will perform well in the market. However the prediction interval being
+large with it ranging from -0.488996 to 0.85058 reflects the high volatility of AMD which was previously seen through the high beta value. Thus
+purchasing AMD stock will come with a larger risk in exchange for a greater potential outcome.
