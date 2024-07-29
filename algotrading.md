@@ -71,7 +71,31 @@ share_size <- 100
 accumulated_shares <- 0
 
 for (i in 1:nrow(amd_df)) {
-# Fill your code here
+current_price <- amd_df$close[i]
+ if (prev_price == 0) {
+ #First day, buy 100 shares
+ amd_df$trade_type[i] <- "buy"
+ amd_df$costs_proceeds[i] <- -current_price * share_size
+ accumulated_shares <- accumulated_shares + share_size
+ total_cost_of_shares <- total_cost_of_shares - amd_df$costs_proceeds[i]
+ }else if (i == nrow(amd_df)) {
+ # Sell all shares on the last day
+ amd_df$trade_type[i] <- "sell"
+ amd_df$costs_proceeds[i] <- current_price * accumulated_shares
+ accumulated_shares <- 0
+ }else if (current_price < prev_price) {
+ # Buy if current price is less than previous day's price
+ amd_df$trade_type[i] <- "buy"
+ amd_df$costs_proceeds[i] <- -current_price * share_size
+ accumulated_shares <- accumulated_shares + share_size
+ total_cost_of_shares <- total_cost_of_shares - amd_df$costs_proceeds[i]
+ }
+ # Update accumulated shares
+ amd_df$accumulated_shares[i] <- accumulated_shares
+
+ # Update previous price
+ prev_price <- current_price
+}
 }
 ```
 
@@ -79,7 +103,45 @@ for (i in 1:nrow(amd_df)) {
 ### Step 3: Customize Trading Period
 - Define a trading period you wanted in the past five years 
 ```r
-# Fill your code here
+start_date <- as.Date("2020-07-01")
+end_date <- as.Date("2021-06-30")
+customised_trading_period_df <- amd_df[amd_df$date >= start_date & amd_df$date <= end_date, ]
+# Initialize columns for trade type, cost/proceeds, and accumulated shares in amd_df
+amd_df$trade_type <- NA
+amd_df$costs_proceeds <- 0 # Corrected column name
+amd_df$accumulated_shares <- 0 # Initialize if needed for tracking
+# Initialize variables for trading logic
+prev_price <- 0
+share_size <- 100
+accumulated_shares <- 0
+total_cost_of_shares <-0
+for (i in 1:nrow(customised_trading_period_df)) {
+ current_price <- customised_trading_period_df$close[i]
+ if (prev_price == 0) {
+ # First day, buy 100 shares
+ customised_trading_period_df$trade_type[i] <- "buy"
+ customised_trading_period_df$costs_proceeds[i] <- -current_price * share_size
+ accumulated_shares <- accumulated_shares + share_size
+ total_cost_of_shares <- total_cost_of_shares - customised_trading_period_df$costs_proceeds[i]
+ } else if (i == nrow(customised_trading_period_df)) {
+ # Sell all shares on the last day
+ customised_trading_period_df$trade_type[i] <- "sell"
+ customised_trading_period_df$costs_proceeds[i] <- current_price * accumulated_shares
+ accumulated_shares <- 0
+ } else if (current_price < prev_price) {
+ # Buy if current price is less than previous day's price
+ customised_trading_period_df$trade_type[i] <- "buy"
+ customised_trading_period_df$costs_proceeds[i] <- -current_price * share_size
+ accumulated_shares <- accumulated_shares + share_size
+ total_cost_of_shares <- total_cost_of_shares - customised_trading_period_df$costs_proceeds[i]
+ }
+
+ # Update accumulated shares
+ customised_trading_period_df$accumulated_shares[i] <- accumulated_shares
+
+ # Update previous price
+ prev_price <- current_price
+}
 ```
 
 
@@ -92,6 +154,23 @@ After running your algorithm, check if the trades were executed as expected. Cal
 
 ```r
 # Fill your code here
+total_profit_loss <- 0
+invested_cap <- 0
+# Loop through each row of the customised_trading_period_df dataframe
+for (i in 1:nrow(customised_trading_period_df)) {
+ if (!is.na(customised_trading_period_df$trade_type[i])) {
+ if (customised_trading_period_df$trade_type[i] == 'buy') {
+ invested_cap <- invested_cap - customised_trading_period_df$costs_proceeds[i]
+ }
+ # Update the total profit/loss by adding the costs/proceeds of the current transaction
+ total_profit_loss <- total_profit_loss + customised_trading_period_df$costs_proceeds[i]
+ }
+}
+ROI <- (total_profit_loss / invested_cap) * 100
+# Print the results
+cat("ROI:", ROI, "\n")
+cat("Total investment:", invested_cap, "\n")
+cat("Total profit/loss:", total_profit_loss, "\n")
 ```
 
 ### Step 5: Profit-Taking Strategy or Stop-Loss Mechanisum (Choose 1)
@@ -101,6 +180,58 @@ After running your algorithm, check if the trades were executed as expected. Cal
 
 ```r
 # Fill your code here
+# Initialize columns for trade type, cost/proceeds, and accumulated shares in amd_df
+customised_trading_period_df$trade_type <- NA
+customised_trading_period_df$costs_proceeds <- 0 # Corrected column name
+customised_trading_period_df$accumulated_shares <- 0 # Initialize if needed for tracking
+customised_trading_period_df$avg_price <- 0
+# Initialize variables for trading logic
+prev_price <- 0
+share_size <- 100
+accumulated_shares <- 0
+total_cost_of_shares <-0
+total_shares_bought <- 0
+for (i in 1:nrow(customised_trading_period_df)) {
+ current_price <- customised_trading_period_df$close[i]
+ if (i == nrow(customised_trading_period_df)) {
+ # Sell all shares on the last day
+ customised_trading_period_df$trade_type[i] <- "sell"
+ customised_trading_period_df$costs_proceeds[i] <- current_price * accumulated_shares
+ accumulated_shares <- 0
+ #average_purchase_price <- total_cost_of_shares/accumulated_shares
+ }
+ else if (prev_price == 0) {
+ # First day, buy 100 shares
+ customised_trading_period_df$trade_type[i] <- "buy"
+ customised_trading_period_df$costs_proceeds[i] <- -current_price * share_size
+ accumulated_shares <- accumulated_shares + share_size
+ total_cost_of_shares <- total_cost_of_shares - customised_trading_period_df$costs_proceeds[i]
+ average_purchase_price <- total_cost_of_shares/accumulated_shares
+ }else if (current_price < prev_price) {
+ # Buy if current price is less than previous day's price
+ customised_trading_period_df$trade_type[i] <- "buy"
+ customised_trading_period_df$costs_proceeds[i] <- -current_price * share_size
+ accumulated_shares <- accumulated_shares + share_size
+ total_cost_of_shares <- total_cost_of_shares - customised_trading_period_df$costs_proceeds[i]
+ average_purchase_price <- total_cost_of_shares/accumulated_shares
+ }
+ if(current_price>=average_purchase_price*1.25 && is.na(customised_trading_period_df$trade_type[i])){
+ customised_trading_period_df$trade_type[i] <- "sell"
+ customised_trading_period_df$costs_proceeds[i] <- current_price*accumulated_shares*1/2
+ accumulated_shares <- accumulated_shares/2
+ total_cost_of_shares <- average_purchase_price*accumulated_shares
+ }
+ # Update accumulated shares
+ customised_trading_period_df$accumulated_shares[i] <- accumulated_shares
+
+ # Update previous price
+ prev_price <- current_price
+}
+
+
+# Update accumulated shares
+ customised_trading_period_df$accumulated_shares[i] <- accumulated_shares
+
 ```
 
 
@@ -109,11 +240,18 @@ After running your algorithm, check if the trades were executed as expected. Cal
 - Relate your results to a relevant market event and explain why these outcomes may have occurred.
 
 
-```r
-# Fill your code here and Disucss
-```
-
-Sample Discussion: On Wednesday, December 6, 2023, AMD CEO Lisa Su discussed a new graphics processor designed for AI servers, with Microsoft and Meta as committed users. The rise in AMD shares on the following Thursday suggests that investors believe in the chipmaker's upward potential and market expectations; My first strategy earned X dollars more than second strategy on this day, therefore providing a better ROI.
+Discussion: Over the trading period between 2020-07-01 and 2021-06-30, the initial strategy yielded an ROI of 15.71%. However, when the profittaking strategy was applied, the ROI decreased to 13.80%. This reduction in ROI can be attributed to the global COVID-19 pandemic, which
+caused a recession and a continual decline in AMD’s stock price, reaching a low of $52.34 on 2020-07-02.
+Several factors contributed to the initial drop in AMD’s stock price, including panic selling by investors due to market volatility and restrictions
+placed on businesses during this period. However, by August 2020, the market began to rebound. This recovery was driven by a growing demand
+for technology products due to the shift to remote work and online education. AMD, known for its high-performance graphics cards, benefited from
+the surge in demand for gaming as more people spent time at home.
+The automated nature of the profit-taking strategy meant it could not account for the broader market recovery and demand surge that occurred
+later in 2020. Selling portions of the holdings during intermediate price increases led to missed opportunities for greater gains as the stock
+continued to rise. The ongoing economic uncertainty and fluctuations caused by the pandemic created a challenging environment for any trading
+strategy to optimize fully. This was evident between 2021-04-27 and 2021-05-03, when the strategy executed four separate buy transactions while
+the stock price dropped from $85.21 to $78.55.
+Thus, although the profit-taking strategy was implemented correctly, it was not as successful due to the specific market context during this period.
 
 
 
