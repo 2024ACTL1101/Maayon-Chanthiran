@@ -102,6 +102,8 @@ current_price <- amd_df$close[i]
 
 ### Step 3: Customize Trading Period
 - Define a trading period you wanted in the past five years 
+
+
 ```r
 start_date <- as.Date("2020-07-01")
 end_date <- as.Date("2021-06-30")
