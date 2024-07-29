@@ -82,6 +82,12 @@ $$
 
 ```r
 #fill the code
+df$AMD_returns <- NA
+df$GSPC_returns <- NA
+for (i in 2:nrow(df)) {
+ df$GSPC_returns[i] <- ((df$GSPC[i] - df$GSPC[i-1]) / df$GSPC[i-1])
+ df$AMD_returns[i] <- ((df$AMD[i] - df$AMD[i-1]) / df$AMD[i-1])
+}
 ```
 
 - **Calculate Risk-Free Rate**: Calculate the daily risk-free rate by conversion of annual risk-free Rate. This conversion accounts for the compounding effect over the days of the year and is calculated using the formula:
@@ -92,6 +98,10 @@ $$
 
 ```r
 #fill the code
+df$daily_rfr <- NA
+for (i in 1:nrow(df)) {
+ df$daily_rfr[i] <- ((1 + df$RF[i] / 100)^(1 / 360)) - 1
+}
 ```
 
 
@@ -99,6 +109,12 @@ $$
 
 ```r
 #fill the code
+df$AMD_er <- NA
+df$GSPC_er <- NA
+for (i in 2:nrow(df)) {
+ df$GSPC_er[i] <- df$GSPC_returns[i] - df$daily_rfr[i]
+ df$AMD_er[i] <- df$AMD_returns[i] - df$daily_rfr[i]
+}
 ```
 
 
@@ -106,6 +122,8 @@ $$
 
 ```r
 #fill the code
+model <- lm(AMD_er ~ GSPC_er, data = df)
+summary(model)
 ```
 
 
@@ -114,17 +132,47 @@ $$
 What is your \(\beta\)? Is AMD more volatile or less volatile than the market?
 
 **Answer:**
-
+The regression analysis provided a beta value of 1.5699987 for AMD, indicating the sensitivity of AMD’s excess returns compared to the excess
+returns of the market (S&P 500). A beta value higher than 1, as in AMD’s case, signifies greater volatility than the market. Specifically, for every 1%
+increase in the S&P 500’s excess returns, AMD’s excess returns are expected to rise by approximately 1.57%, and conversely, for every 1%
+decrease in the S&P 500’s excess returns, AMD’s excess returns are expected to fall by approximately 1.57%. This higher beta suggests that
+AMD’s stock price is more sensitive to market movements, implying greater risk but also the potential for higher returns. Therefore, while riskaverse investors might prefer the stability of the S&P 500, which has a beta of 1, indicating average market volatility, risk-tolerant investors might
+consider investing in AMD for its potential to outperform the market during bullish periods, albeit with the acceptance of higher risk and potential
+underperformance during bearish periods.
+Furthermore, the p-value for the beta coefficient is below 2e-16, indicating that the relationship between the S&P 500 and AMD is statistically
+significant and not due to random chance. This extremely low p-value rejects the null hypothesis, affirming that the beta value is a reliable measure
+of AMD’s volatility relative to the market.
 
 #### Plotting the CAPM Line
 Plot the scatter plot of AMD vs. S&P 500 excess returns and add the CAPM regression line.
 
 ```r
 #fill the code
+library(ggplot2)
+ggplot(df, aes(x = GSPC_er, y = AMD_er)) +
+ geom_point() +
+ geom_smooth(method = "lm", se = TRUE) +
+ labs(title = "Excess Return of AMD against S&P 500",
+ x = "S&P 500 Excess Return",
+ y = "AMD Excess Return")
 ```
 
 ### Step 3: Predictions Interval
 Suppose the current risk-free rate is 5.0%, and the annual expected return for the S&P 500 is 13.3%. Determine a 90% prediction interval for AMD's annual expected return.
+#fill the code
+beta <- summary(model)$coefficients["GSPC_er", "Estimate"]
+current_rfr <- 0.05
+expected_mr <- 0.133
+alpha <- 0.1
+z_score <- qnorm(1 - alpha/2)
+daily_st_error <- summary(model)$sigma
+annual_st_error <- daily_st_error * sqrt(252)
+expd_amd_return <- current_rfr + beta * (expected_mr - current_rfr)
+min_bound <- expd_amd_return - z_score * annual_st_error
+max_bound <- expd_amd_return + z_score * annual_st_error
+print(paste("Expected annual return for AMD:", signif(expd_amd_return, 5))
+print(paste("90% prediction interval for AMD's annual return: [", signif(min_bound, 5), ",", signif(max_bound,
+5), "]"))
 
 
 
