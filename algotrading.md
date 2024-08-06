@@ -244,15 +244,16 @@ for (i in 1:nrow(customised_trading_period_df)) {
 
 Discussion: Over the trading period between 2020-07-01 and 2021-06-30, the initial strategy yielded an ROI of 15.71%. However, when the profittaking strategy was applied, the ROI decreased to 13.80%. This reduction in ROI can be attributed to the global COVID-19 pandemic, which
 caused a recession and a continual decline in AMD’s stock price, reaching a low of $52.34 on 2020-07-02.
-Several factors contributed to the initial drop in AMD’s stock price, including panic selling by investors due to market volatility and restrictions
-placed on businesses during this period. However, by August 2020, the market began to rebound. This recovery was driven by a growing demand
-for technology products due to the shift to remote work and online education. AMD, known for its high-performance graphics cards, benefited from
-the surge in demand for gaming as more people spent time at home.
+
+Several factors contributed to the initial drop in AMD’s stock price, including panic selling by investors due to market volatility and restrictions placed on businesses during this period. However, by August 2020, the market began to rebound. This recovery was driven by a growing demand for technology products due to the shift to remote work and online education. 
+
+AMD, known for its high-performance graphics cards, benefited from the surge in demand for gaming as more people spent time at home.
 The automated nature of the profit-taking strategy meant it could not account for the broader market recovery and demand surge that occurred
 later in 2020. Selling portions of the holdings during intermediate price increases led to missed opportunities for greater gains as the stock
 continued to rise. The ongoing economic uncertainty and fluctuations caused by the pandemic created a challenging environment for any trading
 strategy to optimize fully. This was evident between 2021-04-27 and 2021-05-03, when the strategy executed four separate buy transactions while
 the stock price dropped from $85.21 to $78.55.
+
 Thus, although the profit-taking strategy was implemented correctly, it was not as successful due to the specific market context during this period.
 
 
